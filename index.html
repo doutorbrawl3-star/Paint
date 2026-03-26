@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <link rel="icon" type="image/jpeg" href="Sabor.jpg">
+<link rel="apple-touch-icon" href="Sabor.jpg">
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="theme-color" content="#FF0000"> 
+    <title>Estúdio de Arte</title>
+    <style>
+        body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            font-family: sans-serif; background: #1e140d; 
+            touch-action: none; display: flex;
+        }
+        
+        .sidebar {
+            width: 125px; height: 100vh; background-color: #2b1d12; 
+            border-right: 2px solid #d4af37; padding: 10px; 
+            display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
+            z-index: 20;
+        }
+
+        .sidebar h2 { color: #d4af37; text-align: center; font-size: 13px; margin: 0; border-bottom: 1px solid #5d4037; }
+        .label-t { font-size: 9px; font-weight: bold; color: #daa520; margin-top: 4px; text-transform: uppercase; }
+
+        .btn-t { 
+            width: 100%; padding: 5px 2px; font-size: 10px; background: #3e2723; color: #f5f5dc; 
+            border: 1px solid #5d4037; border-radius: 4px; cursor: pointer;
+        }
+        .btn-t.ativo { border-color: #d4af37; background: #5d4037; font-weight: bold; color: #fff; }
+
+        .grid-c { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .c-box {
+            height: 22px; border-radius: 3px; cursor: pointer; font-size: 8px;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+            border: 1px solid transparent; color: #000;
+        }
+        .c-box.ativa { border: 2px solid #fff; transform: scale(1.05); }
+
+        .btn-f { padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 10px; }
+        #btn-limpar { background: #e53935; color: white; margin-top: 5px;}
+        #btn-salvar { background: #4caf50; color: white; margin-top: 5px;}
+
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #d4af37; }
+
+        .canvas-container { flex-grow: 1; background-color: #ffffff; position: relative; overflow: hidden; }
+        canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>🎨 ESTÚDIO</h2>
+        <div class="label-t">FERRAMENTA</div>
+        <button class="btn-t ativo" id="tool-brush">🖌️ Pincel</button>
+        <button class="btn-t" id="tool-bucket">🪣 Balde</button>
+
+        <div class="label-t">ESTILO</div>
+        <button class="btn-t ativo" id="mode-fill">CHEIO</button>
+        <button class="btn-t" id="mode-stroke">BORDA</button>
+
+        <div class="label-t">TAMANHO</div>
+        <input type="range" id="size-slider" min="10" max="150" value="50">
+
+        <div class="label-t">CORES</div>
+        <div class="grid-c">
+            <div class="c-box ativa" style="background:#d4af37" data-color="ouro">Ouro</div>
+            <div class="c-box" style="background:#8b4513; color:#fff" data-color="marrom">Marrom</div>
+            <div class="c-box" style="background:#ff4757" data-color="ruby">Ruby</div>
+            <div class="c-box" style="background:#40e0d0" data-color="turq">Turq</div>
+            <div class="c-box" style="background:#000; color:#fff" data-color="preto">Preto</div>
+            <div class="c-box" style="background:#fff; border: 1px solid #ccc" data-color="branc">Branco</div>
+            <div class="c-box" style="background:linear-gradient(to right,red,yellow,blue); grid-column: 1 / -1; font-size:7px; color:#fff" data-color="rainbow">RAINBOW</div>
+        </div>
+
+        <div class="grupo-botoes">
+            <button class="btn-f" id="btn-limpar">LIMPAR</button>
+            <button class="btn-f" id="btn-salvar">SALVAR</button>
+        </div>
+    </aside>
+
+    <main class="canvas-container" id="container">
+        <canvas id="canvas"></canvas>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const container = document.getElementById('container');
+
+        let currentPaleta = 'ouro';
+        let isDrawing = false;
+        let useFill = true;
+        let currentTool = 'brush';
+
+        const paletas = {
+            ouro: ['#d4af37', '#ffd700', '#f5f5dc', '#ffffff'],
+            marrom: ['#8b4513', '#a0522d', '#5d4037', '#3e2723'],
+            ruby: ['#ff4757', '#ff6b81', '#a52a2a', '#ff1f1f'],
+            turq: ['#40e0d0', '#00ced1', '#20b2aa', '#afeeee'],
+            preto: ['#000000', '#1a1a1a', '#333333'],
+            branc: ['#ffffff', '#f5f5f5', '#eeeeee']
+        };
+
+        function init() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', init);
+        init();
+
+        document.querySelectorAll('.c-box').forEach(box => {
+            box.onclick = () => {
+                document.querySelector('.c-box.ativa').classList.remove('ativa');
+                box.classList.add('ativa');
+                currentPaleta = box.dataset.color;
+            };
+        });
+
+        function toggleBtn(selector, target) {
+            target.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('ativo'));
+            target.classList.add('ativo');
+        }
+
+        document.getElementById('mode-fill').onclick = (e) => { useFill = true; toggleBtn('.btn-t', e.target); };
+        document.getElementById('mode-stroke').onclick = (e) => { useFill = false; toggleBtn('.btn-t', e.target); };
+        document.getElementById('tool-brush').onclick = (e) => { currentTool = 'brush'; toggleBtn('.btn-t', e.target); };
+        document.getElementById('tool-bucket').onclick = (e) => { currentTool = 'bucket'; toggleBtn('.btn-t', e.target); };
+
+        function getRGB(color) {
+            let d = document.createElement('div');
+            d.style.color = color;
+            document.body.appendChild(d);
+            let rgb = window.getComputedStyle(d).color.match(/\d+/g).map(Number);
+            document.body.removeChild(d);
+            return {r: rgb[0], g: rgb[1], b: rgb[2]};
+        }
+
+        function floodFill(startX, startY, fillRGB) {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imgData.data;
+            const startPos = (startY * canvas.width + startX) * 4;
+            const sR = pixels[startPos], sG = pixels[startPos+1], sB = pixels[startPos+2];
+            if (sR === fillRGB.r && sG === fillRGB.g && sB === fillRGB.b) return;
+            const stack = [[startX, startY]];
+            while (stack.length) {
+                let [x, y] = stack.pop();
+                let pos = (y * canvas.width + x) * 4;
+                while (y >= 0 && pixels[pos] === sR && pixels[pos+1] === sG && pixels[pos+2] === sB) { y--; pos -= canvas.width * 4; }
+                y++; pos += canvas.width * 4;
+                let L = false, R = false;
+                while (y < canvas.height && pixels[pos] === sR && pixels[pos+1] === sG && pixels[pos+2] === sB) {
+                    pixels[pos] = fillRGB.r; pixels[pos+1] = fillRGB.g; pixels[pos+2] = fillRGB.b; pixels[pos+3] = 255;
+                    if (x > 0) {
+                        if (pixels[pos-4] === sR && pixels[pos-3] === sG && pixels[pos-2] === sB) { if (!L) { stack.push([x-1, y]); L = true; } } else { L = false; }
+                    }
+                    if (x < canvas.width - 1) {
+                        if (pixels[pos+4] === sR && pixels[pos+5] === sG && pixels[pos+6] === sB) { if (!R) { stack.push([x+1, y]); R = true; } } else { R = false; }
+                    }
+                    y++; pos += canvas.width * 4;
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        function handleDraw(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            const mouseX = Math.floor(clientX - rect.left);
+            const mouseY = Math.floor(clientY - rect.top);
+
+            if (currentTool === 'bucket') {
+                if (e.type !== 'mousedown' && e.type !== 'touchstart') return;
+                let c = currentPaleta === 'rainbow' ? `hsl(${Math.random()*360}, 100%, 50%)` : paletas[currentPaleta][0];
+                floodFill(mouseX, mouseY, getRGB(c));
+                return;
+            }
+
+            if (isDrawing) {
+                let color;
+                if (currentPaleta === 'rainbow') {
+                    // SORTEIO TOTAL: Muda a cor completamente em cada bolinha do rastro
+                    color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                } else {
+                    const t = paletas[currentPaleta];
+                    color = t[Math.floor(Math.random() * t.length)];
+                }
+                
+                let sz = parseInt(document.getElementById('size-slider').value);
+
+                ctx.save();
+                ctx.translate(mouseX, mouseY);
+                ctx.rotate(Math.random() * Math.PI);
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                let r = Math.random();
+                if(r < 0.33) ctx.arc(0, 0, sz/2, 0, Math.PI*2);
+                else if(r < 0.66) ctx.rect(-sz/2, -sz/2, sz, sz);
+                else { ctx.moveTo(0, -sz/2); ctx.lineTo(sz/2, sz/2); ctx.lineTo(-sz/2, sz/2); ctx.closePath(); }
+                
+                useFill ? (ctx.globalAlpha = 0.4, ctx.fill()) : (ctx.globalAlpha = 1, ctx.stroke());
+                ctx.restore();
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; handleDraw(e); });
+        canvas.addEventListener('mousemove', handleDraw);
+        window.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; handleDraw(e); });
+        canvas.addEventListener('touchmove', (e) => { handleDraw(e); });
+        canvas.addEventListener('touchend', () => isDrawing = false);
+
+        document.getElementById('btn-limpar').onclick = () => { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); };
+        document.getElementById('btn-salvar').onclick = () => {
+            const dataURL = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'minha_arte.png';
+            link.click();
+        };
+    </script>
+</body>
+  </html>
