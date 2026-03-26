@@ -1,20 +1,21 @@
 {
-  "short_name": "Sabor",
-  "name": "Sabor e Arte",
+  "name": "Estúdio de Arte",
+  "short_name": "Arte",
+  "description": "Meu app de desenho criado no Mimo",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1e140d",
+  "theme_color": "#FF0000",
   "icons": [
     {
-      "src": "Sabor.jpg",
+      "src": "sabor.jpg",
       "sizes": "192x192",
       "type": "image/jpeg"
     },
     {
-      "src": "Sabor.jpg",
+      "src": "sabor.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
-  ],
-  "start_url": "index.html",
-  "display": "standalone",
-  "theme_color": "#ffcc00",
-  "background_color": "#ffffff"
+  ]
 }
