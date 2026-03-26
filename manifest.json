@@ -2,7 +2,7 @@
   "name": "Estúdio de Arte",
   "short_name": "Arte",
   "description": "Meu app de desenho criado no Mimo",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1e140d",
   "theme_color": "#FF0000",
