@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <link rel="icon" type="image/jpeg" href="sabor.jpg">
-<link rel="apple-touch-icon" href="sabor.jpg">
-
-<link rel="manifest" href="manifest.json">
-  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="icon" type="image/jpeg" href="sabor.jpg">
+    <link rel="apple-touch-icon" href="sabor.jpg">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-
     <meta name="theme-color" content="#FF0000"> 
+    
     <title>Estúdio de Arte</title>
+    
     <style>
         body { 
             margin: 0; padding: 0; overflow: hidden; 
@@ -25,6 +26,7 @@
             border-right: 2px solid #d4af37; padding: 10px; 
             display: flex; flex-direction: column; gap: 6px; box-sizing: border-box;
             z-index: 20;
+            overflow-y: auto; /* Permite rolar se o celular for pequeno */
         }
 
         .sidebar h2 { color: #d4af37; text-align: center; font-size: 13px; margin: 0; border-bottom: 1px solid #5d4037; }
@@ -189,7 +191,6 @@
             if (isDrawing) {
                 let color;
                 if (currentPaleta === 'rainbow') {
-                    // SORTEIO TOTAL: Muda a cor completamente em cada bolinha do rastro
                     color = `hsl(${Math.random() * 360}, 100%, 50%)`;
                 } else {
                     const t = paletas[currentPaleta];
@@ -233,4 +234,4 @@
         };
     </script>
 </body>
-  </html>
+</html>
